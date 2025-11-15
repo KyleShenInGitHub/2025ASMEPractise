@@ -1,0 +1,14 @@
+PID code libery:https://github.com/br3ttb/Arduino-PID-Library
+可以直接進arduion ide 下載
+使用要打
+#include <PID_v1.h>
+PID myPID(&Input, &Output, &Setpoint, 1.0, 0.5, 1.0, DIRECT);
+
+void setup(){
+  myPID.SetMode(AUTOMATIC);
+  myPID.SetOutputLimits(0, 900);
+}
+
+void loop(){
+  myPID.Compute();
+}
