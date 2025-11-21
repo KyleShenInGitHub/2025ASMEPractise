@@ -1,0 +1,44 @@
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+const int LEFT_PWM = 5;    // 內側
+const int RIGHT_PWM = 9;   // 外側
+
+volatile unsigned long msCount = 0;
+const unsigned long HALF_CIRCLE_TIME = 3360;  // ms
+
+void setup() {
+  pinMode(LEFT_PWM, OUTPUT);
+  pinMode(RIGHT_PWM, OUTPUT);
+
+  // Timer1 每 1ms 中斷
+  cli();
+  TCCR1A = 0;
+  TCCR1B = 0;
+  TCCR1B |= (1 << WGM12);
+  OCR1A = 250; 
+  TIMSK1 |= (1 << OCIE1A);
+  TCCR1B |= (1 << CS11) | (1 << CS10);
+  sei();
+}
+
+void loop() {
+
+  msCount = 0;
+
+  // 左輪：內側固定，右輪外側加速
+  analogWrite(LEFT_PWM, 70);   // 內側固定
+  analogWrite(RIGHT_PWM, 90);  // 外側較快
+
+  while (msCount < HALF_CIRCLE_TIME);
+
+  // 半圓完成
+  analogWrite(LEFT_PWM, 0);
+  analogWrite(RIGHT_PWM, 0);
+
+  while(1);  // 停住
+}
+
+ISR(TIMER1_COMPA_vect) {
+  msCount++;
+}
